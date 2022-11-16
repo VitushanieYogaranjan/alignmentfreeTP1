@@ -16,5 +16,24 @@ def kmer2str(val, k):
 
 
 def stream_kmers(text, k):
-    # --- To complete ---
-    pass
+
+    encode = {"A":0, "C":1, "T":2, "G":3}
+    list_kmer = []
+    kmer = 0
+
+    #lecture du premier kmer
+    for i in range(k-1):
+        kmer = kmer<<2
+        kmer += encode[text[i]]
+
+    mask = (1<<((k-1)*2))-1
+    #lecture des kmers suivants
+    for nucl in text[k-1:]:
+        kmer = kmer&mask
+        kmer = kmer<<2
+        kmer += encode[nucl]
+        list_kmer.append(kmer)
+
+    return list_kmer
+
+#print(stream_kmers("TGTA", 3))
