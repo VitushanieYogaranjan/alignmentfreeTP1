@@ -1,3 +1,11 @@
+import heapq
+import string
+
+def xorshift64(x):
+    x ^= x << 13
+    x ^= x >> 7
+    x ^= x << 17
+    return x
 
 def kmer2str(val, k):
     """ Transform a kmer integer into a its string representation
@@ -18,22 +26,74 @@ def kmer2str(val, k):
 def stream_kmers(text, k):
 
     encode = {"A":0, "C":1, "T":2, "G":3}
-    list_kmer = []
+    alphabet = list(string.ascii_uppercase)
+    for i in alphabet:
+        if i not in ["A","T","C","G"]:
+            encode[i]=0
+
+
+    #list_kmer = []
     kmer = 0
+    rkmer = 0
 
     #lecture du premier kmer
     for i in range(k-1):
+
+        #fwd
         kmer = kmer<<2
         kmer += encode[text[i]]
 
-    mask = (1<<((k-1)*2))-1
+        #reverse
+        rkmer >>= 2
+        rev_letter_value = (encode[text[i]] + 2) & 0b11
+        rkmer += rev_letter_value << (2 * (k - 1))
+
     #lecture des kmers suivants
+    mask = (1<<((k-1)*2))-1
     for nucl in text[k-1:]:
-        kmer = kmer&mask
         kmer = kmer<<2
         kmer += encode[nucl]
-        list_kmer.append(kmer)
+        kmer = kmer&mask
+        
+        #reverse
+        rkmer >>= 2
+        rev_letter_value = (encode[text[i]] + 2) & 0b11
+        rkmer += rev_letter_value << (2 * (k - 1))
 
-    return list_kmer
+        yield kmer, rkmer
 
-#print(stream_kmers("TGTA", 3))
+
+def hash_sketch(genome, taille_sketch, k): 
+
+    s = taille_sketch
+    L = []
+
+    for km, rkm in stream_kmers(genome, k):
+        km = xorshift64(km)
+        rkm = xorshift64(rkm)
+        kmer=min(km, rkm)
+    
+        if len(L)<s:
+            L.append(-kmer)
+
+        elif len(L) == s:
+            heapq.heapify(L)
+
+        else:
+            Max = heapq.minheap(L)
+            if kmer < -Max:
+                heapq.heappop(L)
+                heapq.heappush(L, -kmer)
+
+    List = [-x for x in L]     
+    List.sort()
+    return List
+
+
+
+##méthode avec les casiers
+
+
+
+
+
