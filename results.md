@@ -5,7 +5,7 @@ Lara Wahbi & Vitushanie Yogaranjan
 
 ## Fonction `minhash`:
 
-Nous avons d'abord testé en créant une liste de k-mers de taille 100 (taille du sketch = 100).  
+Nous avons d'abord testé en créant une liste de k-mers de taille 100 (taille du sketch = 100). On utilise ici seulement la méthode des listes car elle s'est avérée être plus rapide que celle du dictionnaire de comptage.  
 Nous avons obtenu les résultats suivants :  
 
  - `GCF_000008865.2_ASM886v2_genomic.fna GCF_008244785.1_ASM824478v1_genomic.fna 0.0 (0.0, 0.0)`
